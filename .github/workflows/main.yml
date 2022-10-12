@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Setup NuGet.exe for use with actions
       uses: NuGet/setup-nuget@e9fc9ddc9525cc392b40ac9b2301a80f81edda6b
