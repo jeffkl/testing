@@ -1,0 +1,24 @@
+<Project>
+  <Target Name="GetTestTargetFrameworks"
+          AfterTargets="Build"
+          Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+    <MSBuild BuildInParallel="True"
+             Properties="InnerTargets=GetTargetPath;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath);"
+             SkipNonexistentProjects="$([MSBuild]::ValueOrDefault('%(ProjectReference.SkipNonexistentProjects)', $([MSBuild]::ValueOrDefault('$(SkipNonexistentProjects)', 'true'))))"
+             SkipNonexistentTargets="$([MSBuild]::ValueOrDefault('%(ProjectReference.SkipNonexistentTargets)', $([MSBuild]::ValueOrDefault('$(SkipNonexistentTargets)', 'true'))))"
+             Projects="@(ProjectReference)"
+             Targets="GetTestProject">
+      <Output TaskParameter="TargetOutputs"
+              ItemName="TestProject" />
+    </MSBuild>
+
+    <ItemGroup>
+      <_AllTargetFrameworks Include="@(TestProject->Metadata('TargetFrameworks')->ClearMetadata())" />
+      <_TargetFrameworks Include="@(_AllTargetFrameworks->Distinct())" JobName="$([System.String]::new(%(Identity)).Replace('.', '_'))" />
+      <_TargetFrameworks Update="@(_TargetFrameworks)" TargetFramework="hello" />
+    </ItemGroup>
+
+    <Message Text="##vso[task.setvariable variable=TestTargetFrameworks;isOutput=true]{@(_TargetFrameworks->'%27%(JobName)%27: {%27TestTargetFramework%27: %27%(Identity)%27}', ', ')}"
+             Importance="High" />
+  </Target>
+</Project>

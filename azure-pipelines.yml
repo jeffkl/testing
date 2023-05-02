@@ -1,0 +1,100 @@
+resources:
+- repo: self
+
+trigger: none
+pr: none
+
+pool: 
+  vmImage: ubuntu-latest
+
+variables:
+  BINLOG_DIRECTORY: $(Build.SourcesDirectory)/binlogs
+  TESTRESULTS_DIRECTORY: $(Build.SourcesDirectory)/.testresults
+jobs:
+- job: Build
+  steps:
+  - task: UseDotNet@2
+    displayName: Install .NET 7 SDK
+    inputs:
+      version: 7.x
+
+  - task: UseDotNet@2
+    displayName: Install .NET 6 SDK
+    inputs:
+      version: 6.x
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: build
+      arguments: /binarylogger:LogFile=$(BINLOG_DIRECTORY)/build.binlog
+
+  - task: DotNetCoreCLI@2
+    displayName: Run tests (net6.0)
+    condition: succeededOrFailed()
+    inputs:
+      command: test
+      arguments: --no-restore --no-build --framework net6.0 --logger trx --settings test.runsettings --results-directory $(TESTRESULTS_DIRECTORY)/net6.0 /noautorsp /binarylogger:LogFile=$(BINLOG_DIRECTORY)/test-net6.0.binlog
+      publishTestResults: false
+
+  - task: DotNetCoreCLI@2
+    displayName: Run tests (net7.0)
+    condition: succeededOrFailed()
+    inputs:
+      command: test
+      arguments: --no-restore --no-build --framework net7.0 --logger trx --settings test.runsettings --results-directory $(TESTRESULTS_DIRECTORY)/net7.0 /noautorsp /binarylogger:LogFile=$(BINLOG_DIRECTORY)/test-net7.0.binlog
+      publishTestResults: false
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    displayName: Publish test results (net6.0)
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '*.trx'
+      searchFolder: $(Build.SourcesDirectory)/.testresults/net6.0
+      testRunTitle: Tests (net6.0)
+      mergeTestResults: true
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    displayName: Publish test results (net7.0)
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '*.trx'
+      searchFolder: $(Build.SourcesDirectory)/.testresults/net7.0
+      testRunTitle: Tests (net7.0)
+      mergeTestResults: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish binlogs
+    condition: always()
+    inputs:
+      PathtoPublish: '$(BINLOG_DIRECTORY)'
+      ArtifactName: "Binlogs $(Job.DisplayName)"
+
+#- job: RunTests
+#  dependsOn: Build
+#  displayName: Run tests
+#  strategy:
+#    matrix: $[ dependencies.Build.outputs['Build.TestTargetFrameworks'] ]
+#  variables:
+#    targets: $[ dependencies.Build.outputs['Build.TestTargetFrameworks'] ]
+#  steps:
+#  - task: DotNetCoreCLI@2
+#    name: Build
+#    inputs:
+#      command: build
+#      arguments: /binarylogger:LogFile=$(BINLOG_DIRECTORY)/build.binlog
+#  - task: DotNetCoreCLI@2
+#    name: RunTest
+#    displayName: Run tests $(TestTargetFramework)
+#    inputs:
+#      command: test
+#      arguments: --no-restore --no-build --framework $(TestTargetFramework) /noautorsp /binarylogger:LogFile=$(BINLOG_DIRECTORY)/test-$(TestTargetFramework).binlog
+#      testRunTitle: Tests $(TestTargetFramework)
+
+#  - task: PublishBuildArtifacts@1
+#    displayName: Publish binlogs
+#    inputs:
+#      PathtoPublish: '$(BINLOG_DIRECTORY)'
+#      ArtifactName: "Binlogs $(Job.DisplayName)"

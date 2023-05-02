@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <IsUnitTestProject Condition="'$(IsUnitTestProject)' == '' And $(MSBuildProjectName.EndsWith('UnitTests'))">true</IsUnitTestProject>
+    <IsFunctionalTestProject Condition="'$(IsFunctionalTestProject)' == '' And $(MSBuildProjectName.EndsWith('FunctionalTests'))">true</IsFunctionalTestProject>
+    <IsTestProject Condition="'$(IsTestProject)' == '' And $(MSBuildProjectName.EndsWith('Tests'))">true</IsTestProject>
+    <IsPackable Condition="'$(IsTestProject)' == 'true'">false</IsPackable>
+
+    <IsTestProject Condition="'$(FunctionalTestsOnly)' == 'true' And '$(IsTestProject)' == 'true' And '$(IsFunctionalTestProject)' != 'true'">false</IsTestProject>
+    <IsTestProject Condition="'$(UnitTestsOnly)' == 'true' And '$(IsTestProject)' == 'true' And '$(IsUnitTestProject)' != 'true'">false</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)test.runsettings" />
+    <None Include="$(MSBuildThisFileDirectory)xunit.runner.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  
+  <Target Name="GetTestProject" Returns="@(TestProject)">
+    <ItemGroup>
+      <TestProject Include="$(MSBuildProjectFullPath)" Condition="'$(IsTestProject)' == 'true'" TargetFrameworks="$(TargetFramework);$(TargetFrameworks)" />
+    </ItemGroup>
+  </Target>
+</Project>
