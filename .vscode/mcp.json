@@ -1,0 +1,15 @@
+{
+    "servers": {
+        "nuget": {
+            "type": "stdio",
+            "command": "dtx",
+            "args": [
+                "NuGet.Mcp.Server",
+                "--source",
+                "https://apiint.nugettest.org/v3/index.json",
+                "--version",
+                "1.0.18-preview"
+            ]
+        }
+    }
+}
