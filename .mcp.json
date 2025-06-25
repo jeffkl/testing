@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "nuget": {
+      "type": "stdio",
+      "command": "C:/Users/jeffkl/Downloads/dotnet-sdk-10.0.100-preview.6.25316.103-win-x64/dotnet.exe",
+      "args": [
+        "tool",
+        "exec",
+        "NuGet.Mcp.Server",
+        "--source",
+        "https://apiint.nugettest.org/v3/index.json",
+        "--prerelease",
+        "--yes"
+      ]
+    }
+  }
+}
