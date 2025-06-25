@@ -29,6 +29,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
+            8.x
             9.x
 
       - name: Install dotnet-tool-execute
