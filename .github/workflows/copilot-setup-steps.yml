@@ -25,15 +25,19 @@ jobs:
     # You can define any steps you want, and they will run before the agent starts.
     # If you do not check out your code, Copilot will do this for you.
     steps:
-      - name: Install .NET 9.x
+      - name: Install .NET 8.x and 9.x
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             8.x
             9.x
 
-      - name: Install dotnet-tool-execute
-        run: dotnet tool install --global dotnet-tool-execute --prerelease --add-source https://api.nuget.org/v3/index.json --ignore-failed-sources
+      - name: Install .NET 10.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.x
+          dotnet-quality: daily
 
       - name: dotnet --info
         run: dotnet --info
