@@ -37,7 +37,7 @@ jobs:
         with:
           dotnet-version: |
             10.x
-          dotnet-quality: daily
+          dotnet-quality: preview
 
       - name: dotnet --info
         run: dotnet --info
