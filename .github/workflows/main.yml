@@ -23,7 +23,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup NuGet.exe for use with actions
-      uses: NuGet/setup-nuget@v2.0.2
+      uses: NuGet/setup-nuget@517d1b405329b1652cc2e6f77571c0321fe9e085
 
     - name: Run nuget help
       run: nuget help
